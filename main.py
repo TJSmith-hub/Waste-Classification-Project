@@ -17,7 +17,7 @@ def load_images(folder):
     for subf in subfolders:
         for filename in os.listdir(os.path.join(folder,subf)):
             img = Image.open(os.path.join(folder,subf,filename))
-            images.append(np.asfarray(img).astype('uint8'))
+            images.append(np.asarray(img))
             labels.append(i)
         i += 1
         print("Loaded images: ", subf)
@@ -33,9 +33,9 @@ for i in range(25):
     plt.xticks([])
     plt.yticks([])
     plt.grid(False)
-    plt.imshow(waste_images[i])
-    plt.xlabel(classes[waste_labels[i]])
-#plt.show()
+    plt.imshow(waste_images[i*100])
+    plt.xlabel(classes[waste_labels[i*100]])
+plt.show()
 
 waste_images = np.divide(waste_images,255.0)
 
@@ -46,18 +46,15 @@ train_labels = tf.convert_to_tensor(train_labels)
 test_images = tf.convert_to_tensor(test_images)
 test_labels = tf.convert_to_tensor(test_labels)
 
-
-print(train_images)
+print(train_images.shape)
 
 model = models.Sequential()
-model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=(64, 64, 3)))
+model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=train_images[0].shape))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.Flatten())
 model.add(layers.Dense(64, activation='relu'))
 model.add(layers.Dense(6))
+model.summary()
 
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
@@ -69,6 +66,7 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
+plt.show()
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 
