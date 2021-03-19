@@ -6,36 +6,17 @@ import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import layers, models
+import process_data as pd
 
 classes = ["cardboard","glass","metal","paper","plastic","trash"]
 
-def load_images(folder):
-    images = []
-    labels = []
-    i = 0
-    subfolders = os.listdir(folder)
-    for subf in subfolders:
-        for filename in os.listdir(os.path.join(folder,subf)):
-            img = Image.open(os.path.join(folder,subf,filename))
-            images.append(np.asarray(img))
-            labels.append(i)
-        i += 1
-        print("Loaded images: ", subf)
-    return images, labels
+dataset = pd.dataset()
 
-waste_images, waste_labels = load_images('new_waste_images')
+dataset.resize_images(255,255)
 
-print(np.shape(waste_images))
+dataset.plot()
 
-plt.figure(figsize=(10,10))
-for i in range(25):
-    plt.subplot(5,5,i+1)
-    plt.xticks([])
-    plt.yticks([])
-    plt.grid(False)
-    plt.imshow(waste_images[i*100])
-    plt.xlabel(classes[waste_labels[i*100]])
-plt.show()
+waste_images, waste_labels = dataset.load_images()
 
 waste_images = np.divide(waste_images,255.0)
 
@@ -58,7 +39,7 @@ model.summary()
 
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=10, validation_data=(test_images, test_labels))
+history = model.fit(train_images, train_labels, epochs=10, validation_data=(test_images, test_labels), batch_size=8)
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
