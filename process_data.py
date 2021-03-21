@@ -40,10 +40,11 @@ class dataset:
             temp.save(os.path.join("waste_dataset","image" + str(i) + ".jpg"))
             i += 1
     
-    def resize_images(self, x, y):
+    def resize_images(self, res):
+        new_images = []
         for image in self.original_images:
             temp = Image.fromarray(image)
-            temp = temp.resize((x,y))
+            temp = temp.resize((res[0],res[1]))
             self.new_images.append(np.asarray(temp))
         self.new_labels = self.original_labels.copy()
         print(np.shape(self.new_images))
