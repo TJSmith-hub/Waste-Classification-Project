@@ -14,13 +14,15 @@ dataset = pd.dataset()
 
 dataset.resize_images(128,128)
 
-dataset.plot()
+#dataset.save_dataset()
+
+#dataset.plot()
 
 waste_images, waste_labels = dataset.load_images()
 
 waste_images = np.divide(waste_images,255.0)
 
-train_images,test_images,train_labels,test_labels = train_test_split(waste_images, waste_labels,test_size=0.3)
+train_images,test_images,train_labels,test_labels = train_test_split(waste_images, waste_labels,test_size=0.1, random_state=1)
 
 train_images = tf.convert_to_tensor(train_images)
 train_labels = tf.convert_to_tensor(train_labels)
@@ -30,26 +32,21 @@ test_labels = tf.convert_to_tensor(test_labels)
 print(train_images.shape)
 
 model = models.Sequential()
-model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=train_images[0].shape))
+model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=train_images[0].shape))
 model.add(layers.MaxPooling2D((2, 2)))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.Flatten())
 model.add(layers.Dense(128, activation='relu'))
-model.add(layers.Dense(6, activation='softmax'))
+model.add(layers.Dense(6))
 model.summary()
 
-model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False), metrics=['accuracy'])
+model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=10, validation_data=(test_images, test_labels))
+history = model.fit(train_images, train_labels, epochs=20, validation_data=(test_images, test_labels))
 
-print(test_images[0].shape)
-
-predictions = model.predict(test_images)
-
-#np.set_printoptions(precision=3)
-#print(precticted)
-
+"""
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
 plt.xlabel('Epoch')
@@ -57,10 +54,19 @@ plt.ylabel('Accuracy')
 plt.ylim([0, 1])
 plt.legend(loc='lower right')
 plt.show()
+"""
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 
 print(test_acc)
+
+model.add(layers.Softmax())
+predictions = model.predict(test_images)
+
+
+#------------------------------Prediction Visualisation from---------------------------------
+#https://www.tensorflow.org/tutorials/keras/classification
+#modified to work with this particular code
 
 def plot_image(i, predictions_array, true_label, img):
   true_label, img = true_label[i], img[i]
@@ -106,3 +112,4 @@ for i in range(num_images):
   plot_value_array(i, predictions[i], test_labels)
 plt.tight_layout()
 plt.show()
+#--------------------------------------------------------------------------------------

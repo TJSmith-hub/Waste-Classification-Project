@@ -29,11 +29,16 @@ class dataset:
     def load_images(self):
         return self.new_images, self.new_labels
 
-    def save_dataset(self, image_data, labels):
+    def save_dataset(self):
         #save labels as csv file
         with open("waste_labels", 'w', newline='') as myfile:
             wr = csv.writer(myfile)
-            wr.writerow(labels)
+            wr.writerow(self.new_labels)
+        i = 0
+        for image in self.new_images:
+            temp = Image.fromarray(image)
+            temp.save(os.path.join("waste_dataset","image" + str(i) + ".jpg"))
+            i += 1
     
     def resize_images(self, x, y):
         for image in self.original_images:
