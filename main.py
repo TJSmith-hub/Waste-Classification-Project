@@ -17,13 +17,13 @@ random.seed(random_seed)
 
 
 classes = ["cardboard","glass","metal","paper","plastic","trash"]
-res = [[64,48],[96,54],[128,96],[192,108],[256,192]]
+res = [[64,64],[96,54],[128,96],[192,108],[256,192]]
 
 dataset = pd.dataset("original")
 
 dataset.resize_images(res[0])
 dataset.add_fliped_images()
-dataset.save_dataset()
+#dataset.save_dataset()
 #dataset.plot()
 
 waste_images, waste_labels = dataset.load_images()
@@ -43,22 +43,33 @@ model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(128, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Flatten())
+model.add(layers.Dropout(0.9))
+model.add(layers.Dense(128, activation='relu'))
 model.add(layers.Dropout(0.5))
-model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dropout(0.5))
+model.add(layers.Dense(128, activation='relu'))
+model.add(layers.Dropout(0.3))
 model.add(layers.Dense(6))
 model.summary()
 
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=100, validation_data=(test_images, test_labels))
+history = model.fit(train_images, train_labels, epochs=500, validation_data=(test_images, test_labels))
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
+plt.title('Model Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.ylim([0, 1])
 plt.legend(loc='lower right')
+plt.show()
+
+plt.plot(history.history['loss'], label="loss")
+plt.plot(history.history['val_loss'], label="val_loss")
+plt.title('Model Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.legend(loc='upper right')
 plt.show()
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels)
