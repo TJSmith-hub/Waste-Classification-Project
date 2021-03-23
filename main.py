@@ -17,23 +17,25 @@ random.seed(random_seed)
 
 
 classes = ["cardboard","glass","metal","paper","plastic","trash"]
-res = [[64,48],[96,54],[128,72],[192,108],[256,192]]
+res = [[64,48],[96,54],[128,96],[192,108],[256,192]]
 
-dataset = pd.dataset()
-dataset.resize_images(res[0])
-#dataset.save_dataset()
-#dataset.plot()
+dataset = pd.dataset("original")
+
+dataset.resize_images(res[2])
+dataset.add_fliped_images()
+dataset.save_dataset()
+dataset.plot()
 
 waste_images, waste_labels = dataset.load_images()
 waste_images = np.divide(waste_images,255.0)
-train_images,test_images,train_labels,test_labels = train_test_split(waste_images, waste_labels,test_size=0.3, random_state=0)
+train_images,test_images,train_labels,test_labels = train_test_split(waste_images, waste_labels,test_size=0.2, random_state=0)
 
 train_images = tf.convert_to_tensor(train_images)
 train_labels = tf.convert_to_tensor(train_labels)
 test_images = tf.convert_to_tensor(test_images)
 test_labels = tf.convert_to_tensor(test_labels)
 
-print(train_images.shape)
+print(len(waste_images), "total images")
 
 model = models.Sequential()
 model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=train_images[0].shape))
