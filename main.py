@@ -21,10 +21,10 @@ res = [[64,48],[96,54],[128,96],[192,108],[256,192]]
 
 dataset = pd.dataset("original")
 
-dataset.resize_images(res[2])
+dataset.resize_images(res[0])
 dataset.add_fliped_images()
 dataset.save_dataset()
-dataset.plot()
+#dataset.plot()
 
 waste_images, waste_labels = dataset.load_images()
 waste_images = np.divide(waste_images,255.0)
@@ -43,9 +43,9 @@ model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(128, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Flatten())
-model.add(layers.Dropout(0.4))
-model.add(layers.Dense(128, activation='relu'))
-model.add(layers.Dropout(0.4))
+model.add(layers.Dropout(0.5))
+model.add(layers.Dense(64, activation='relu'))
+model.add(layers.Dropout(0.5))
 model.add(layers.Dense(6))
 model.summary()
 
