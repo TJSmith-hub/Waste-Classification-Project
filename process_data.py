@@ -40,6 +40,7 @@ class dataset:
         return self.new_images, self.new_labels
 
     def save_dataset(self):
+        print("Saving", len(self.new_images), "images")
         #save labels as csv file
         with open("waste_labels", 'w', newline='') as myfile:
             writer = csv.writer(myfile)
@@ -65,36 +66,42 @@ class dataset:
             temp = Image.fromarray(self.new_images[i])
             temp = temp.transpose(Image.FLIP_LEFT_RIGHT)
             self.new_images.append(np.asarray(temp))
-        print("generating labels")
-        for i in range(0,n):
             self.new_labels.append(self.new_labels[i])
 
     def add_rotated_images(self):
         n = len(self.new_images)
         print("Rotating",n,"images")
-        for i in range(0,n):
+        for i in range(0,n*3):
             temp = Image.fromarray(self.new_images[i])
             temp = temp.transpose(Image.ROTATE_90)
             self.new_images.append(np.asarray(temp))
-            temp = temp.transpose(Image.ROTATE_90)
-            self.new_images.append(np.asarray(temp))
-            temp = temp.transpose(Image.ROTATE_90)
-            self.new_images.append(np.asarray(temp))
-        print("generating labels")
-        for i in range(0,n*3):
             self.new_labels.append(self.new_labels[i])
 
     def add_flipped_images2(self):
         n = len(self.new_images)
-        print("Rotating",n,"images")
+        print("Flipping",n,"images")
         for i in range(0,n*3):
             temp = Image.fromarray(self.new_images[i])
             temp = temp.transpose(Image.FLIP_LEFT_RIGHT)
             self.new_images.append(np.asarray(temp))
-        print("generating labels")
-        for i in range(0,n*3):
             self.new_labels.append(self.new_labels[i])
-
+    
+    def add_all_image_perms(self):
+        n = len(self.new_images)
+        print("Rotating",n,"images")
+        for i in range(0,n*3):
+            temp = Image.fromarray(self.new_images[i])
+            temp = temp.transpose(Image.ROTATE_90)
+            self.new_images.append(np.asarray(temp))
+            self.new_labels.append(self.new_labels[i])
+        for i in range(0,n*2):
+            temp = Image.fromarray(self.new_images[i])
+            flip1 = temp.transpose(Image.FLIP_LEFT_RIGHT)
+            self.new_labels.append(self.new_labels[i])
+            self.new_images.append(np.asarray(flip1))
+            flip2 = temp.transpose(Image.FLIP_TOP_BOTTOM)
+            self.new_images.append(np.asarray(flip2))
+            self.new_labels.append(self.new_labels[i])
 
     def plot(self):
         plt.figure(figsize=(10,10))

@@ -17,13 +17,13 @@ random.seed(random_seed)
 
 
 classes = ["cardboard","glass","metal","paper","plastic","trash"]
-res = [[64,64],[96,54],[128,96],[192,108],[256,192]]
+res = [[64,64],[96,54],[128,128],[192,108],[256,192]]
 
 dataset = pd.dataset("original")
 
 dataset.resize_images(res[0])
 dataset.add_flipped_images2()
-dataset.save_dataset()
+#dataset.save_dataset()
 #dataset.plot()
 
 waste_images, waste_labels = dataset.load_images()
@@ -51,9 +51,9 @@ model.add(layers.Dropout(0.3))
 model.add(layers.Dense(6))
 model.summary()
 
-model.compile(optimizer='Adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=100, validation_data=(test_images, test_labels), verbose=1)
+history = model.fit(train_images, train_labels, epochs=500, validation_data=(test_images, test_labels), verbose=1)
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
