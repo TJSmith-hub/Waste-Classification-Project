@@ -22,13 +22,13 @@ res = [[64,64],[96,54],[128,96],[192,108],[256,192]]
 dataset = pd.dataset("original")
 
 dataset.resize_images(res[0])
-dataset.add_fliped_images()
-#dataset.save_dataset()
+dataset.add_flipped_images2()
+dataset.save_dataset()
 #dataset.plot()
 
 waste_images, waste_labels = dataset.load_images()
 waste_images = np.divide(waste_images,255.0)
-train_images,test_images,train_labels,test_labels = train_test_split(waste_images, waste_labels,test_size=0.2, random_state=0)
+train_images,test_images,train_labels,test_labels = train_test_split(waste_images, waste_labels,test_size=0.3, random_state=0)
 
 train_images = tf.convert_to_tensor(train_images)
 train_labels = tf.convert_to_tensor(train_labels)
@@ -44,16 +44,16 @@ model.add(layers.Conv2D(128, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Flatten())
 model.add(layers.Dropout(0.9))
-model.add(layers.Dense(128, activation='relu'))
+model.add(layers.Dense(256, activation='relu'))
 model.add(layers.Dropout(0.5))
-model.add(layers.Dense(128, activation='relu'))
+model.add(layers.Dense(256, activation='relu'))
 model.add(layers.Dropout(0.3))
 model.add(layers.Dense(6))
 model.summary()
 
-model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+model.compile(optimizer='Adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=500, validation_data=(test_images, test_labels))
+history = model.fit(train_images, train_labels, epochs=100, validation_data=(test_images, test_labels), verbose=1)
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')

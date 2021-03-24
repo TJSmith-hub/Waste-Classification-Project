@@ -58,7 +58,7 @@ class dataset:
         self.new_labels = self.original_labels.copy()
         print(np.shape(self.new_images))
 
-    def add_fliped_images(self):
+    def add_flipped_images(self):
         n = len(self.new_images)
         print("Flipping",n,"images")
         for i in range(0,n):
@@ -68,6 +68,33 @@ class dataset:
         print("generating labels")
         for i in range(0,n):
             self.new_labels.append(self.new_labels[i])
+
+    def add_rotated_images(self):
+        n = len(self.new_images)
+        print("Rotating",n,"images")
+        for i in range(0,n):
+            temp = Image.fromarray(self.new_images[i])
+            temp = temp.transpose(Image.ROTATE_90)
+            self.new_images.append(np.asarray(temp))
+            temp = temp.transpose(Image.ROTATE_90)
+            self.new_images.append(np.asarray(temp))
+            temp = temp.transpose(Image.ROTATE_90)
+            self.new_images.append(np.asarray(temp))
+        print("generating labels")
+        for i in range(0,n*3):
+            self.new_labels.append(self.new_labels[i])
+
+    def add_flipped_images2(self):
+        n = len(self.new_images)
+        print("Rotating",n,"images")
+        for i in range(0,n*3):
+            temp = Image.fromarray(self.new_images[i])
+            temp = temp.transpose(Image.FLIP_LEFT_RIGHT)
+            self.new_images.append(np.asarray(temp))
+        print("generating labels")
+        for i in range(0,n*3):
+            self.new_labels.append(self.new_labels[i])
+
 
     def plot(self):
         plt.figure(figsize=(10,10))
