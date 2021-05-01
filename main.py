@@ -1,32 +1,25 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 import tensorflow as tf
+from tensorflow.keras import layers, models
 import matplotlib.pyplot as plt
 import numpy as np
-import random
 from PIL import Image
 from sklearn.model_selection import train_test_split
-from tensorflow.keras import layers, models
+from sklearn.metrics import classification_report
+
 import process_data as pd
 
-random_seed = 0
-os.environ['PYTHONHASHSEED']=str(random_seed)
-np.random.seed(random_seed)
-tf.random.set_seed(random_seed)
-random.seed(random_seed)
-
-
-classes = ["cardboard","glass","metal","paper","plastic","trash"]
 res = [[64,64],[96,54],[128,128],[192,108],[256,192]]
 
 dataset = pd.dataset("original")
-
 dataset.resize_images(res[0])
-dataset.add_flipped_images2()
+dataset.add_flipped_images()
 #dataset.save_dataset()
 #dataset.plot()
 
 waste_images, waste_labels = dataset.load_images()
+
 waste_images = np.divide(waste_images,255.0)
 train_images,test_images,train_labels,test_labels = train_test_split(waste_images, waste_labels,test_size=0.3, random_state=0)
 
@@ -48,12 +41,21 @@ model.add(layers.Dense(256, activation='relu'))
 model.add(layers.Dropout(0.5))
 model.add(layers.Dense(256, activation='relu'))
 model.add(layers.Dropout(0.3))
-model.add(layers.Dense(6))
+model.add(layers.Dense(6, activation='softmax'))
 model.summary()
 
-model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=500, validation_data=(test_images, test_labels), verbose=1)
+history = model.fit(train_images, train_labels, epochs=100, validation_data=(test_images, test_labels), verbose=1)
+
+model.save('models/WasteNet')
+
+test_loss, test_acc = model.evaluate(test_images,  test_labels)
+print(test_acc)
+
+predictions = model.predict(waste_images)
+
+classification_report(waste_labels, predictions, target_names=dataset.classes)
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
@@ -71,13 +73,6 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend(loc='upper right')
 plt.show()
-
-test_loss, test_acc = model.evaluate(test_images,  test_labels)
-
-print(test_acc)
-
-model.add(layers.Softmax())
-predictions = model.predict(test_images)
 
 
 #------------------------------Prediction Visualisation from---------------------------------
@@ -98,7 +93,7 @@ def plot_image(i, predictions_array, true_label, img):
 	else:
 		color = 'red'
 
-	plt.xlabel("{} {:2.0f}% ({})".format(classes[predicted_label],100*np.max(predictions_array),classes[true_label]),color=color)
+	plt.xlabel("{} {:2.0f}% ({})".format(dataset.classes[predicted_label],100*np.max(predictions_array),dataset.classes[true_label]),color=color)
 
 def plot_value_array(i, predictions_array, true_label):
 	true_label = true_label[i]

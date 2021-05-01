@@ -80,10 +80,16 @@ class dataset:
     def add_flipped_images2(self):
         n = len(self.new_images)
         print("Flipping",n,"images")
-        for i in range(0,n*3):
+        for i in range(0,n):
             temp = Image.fromarray(self.new_images[i])
-            temp = temp.transpose(Image.FLIP_LEFT_RIGHT)
-            self.new_images.append(np.asarray(temp))
+            flip1 = temp.transpose(Image.FLIP_LEFT_RIGHT)
+            self.new_labels.append(self.new_labels[i])
+            self.new_images.append(np.asarray(flip1))
+            flip2 = temp.transpose(Image.FLIP_TOP_BOTTOM)
+            self.new_images.append(np.asarray(flip2))
+            self.new_labels.append(self.new_labels[i])
+            flip3 = flip2.transpose(Image.FLIP_LEFT_RIGHT)
+            self.new_images.append(np.asarray(flip3))
             self.new_labels.append(self.new_labels[i])
     
     def add_all_image_perms(self):
