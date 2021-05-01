@@ -14,7 +14,7 @@ res = [[64,64],[96,54],[128,128],[192,108],[256,192]]
 
 dataset = pd.dataset("original")
 dataset.resize_images(res[0])
-dataset.add_flipped_images()
+dataset.add_flipped_images2()
 #dataset.save_dataset()
 #dataset.plot()
 
@@ -46,16 +46,18 @@ model.summary()
 
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=100, validation_data=(test_images, test_labels), verbose=1)
+history = model.fit(train_images, train_labels, epochs=20, validation_data=(test_images, test_labels), verbose=1)
 
 model.save('models/WasteNet')
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels)
 print(test_acc)
 
-predictions = model.predict(waste_images)
+predictions = model.predict(test_images)
 
-classification_report(waste_labels, predictions, target_names=dataset.classes)
+y_pred = np.argmax(predictions,axis=1)
+
+print(classification_report(test_labels, y_pred, target_names=dataset.classes))
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
