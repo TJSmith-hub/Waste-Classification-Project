@@ -1,5 +1,5 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from tensorflow.keras import layers, models
 import matplotlib.pyplot as plt
@@ -10,10 +10,8 @@ from sklearn.metrics import classification_report
 
 import process_data as pd
 
-res = [[64,64],[96,54],[128,128],[192,108],[256,192]]
-
 dataset = pd.dataset("original")
-dataset.resize_images(res[0])
+dataset.resize_images([64,64])
 dataset.add_flipped_images2()
 #dataset.save_dataset()
 #dataset.plot()
@@ -31,9 +29,11 @@ test_labels = tf.convert_to_tensor(test_labels)
 print(len(waste_images), "total images")
 
 model = models.Sequential()
-model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=train_images[0].shape))
+model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=train_images[0].shape))
+model.add(layers.Conv2D(32, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Flatten())
 model.add(layers.Dropout(0.9))
@@ -46,7 +46,7 @@ model.summary()
 
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=20, validation_data=(test_images, test_labels), verbose=1)
+history = model.fit(train_images, train_labels, epochs=100, validation_data=(test_images, test_labels), verbose=1)
 
 model.save('models/WasteNet')
 
