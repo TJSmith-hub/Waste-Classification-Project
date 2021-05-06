@@ -1,5 +1,6 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import shutil
 import tensorflow as tf
 from tensorflow.keras import layers, models
 import matplotlib.pyplot as plt
@@ -36,18 +37,18 @@ model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Flatten())
-model.add(layers.Dropout(0.9))
+model.add(layers.Dropout(0.8))
 model.add(layers.Dense(256, activation='relu'))
 model.add(layers.Dropout(0.5))
-model.add(layers.Dense(256, activation='relu'))
-model.add(layers.Dropout(0.4))
 model.add(layers.Dense(6, activation='softmax'))
 model.summary()
 
-model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
+model.compile(optimizer=tf.keras.optimizers.SGD( learning_rate=0.001, momentum=0.9), loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-history = model.fit(train_images, train_labels, epochs=1, validation_data=(test_images, test_labels), verbose=1)
+history = model.fit(train_images, train_labels, epochs=300, validation_data=(test_images, test_labels), verbose=1)
 
+if (os.path.exists('models/WasteNet')):
+	shutil.rmtree('models/WasteNet')
 model.save('models/WasteNet')
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels)
