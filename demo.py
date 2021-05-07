@@ -1,6 +1,5 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-import os.path
 import numpy as np
 import base64
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -11,12 +10,8 @@ from tensorflow.keras import models
 import tensorflow as tf
 from PIL import Image
 
-fig = matplotlib.figure.Figure(figsize=(5, 4), dpi=100)
-
-matplotlib.use("TkAgg")
-
 print("loading model...")
-WasteNet = models.load_model("models/WasteNet")
+WasteNet = models.load_model("models/WasteNet.h5")
 
 
 def draw_figure(canvas, figure):
@@ -26,14 +21,14 @@ def draw_figure(canvas, figure):
     return figure_canvas_agg
 
 def predict(model, image):
-    y_pred = model.predict(image)
+    y_pred = model.predict(image)[0] * 100
     return y_pred
 
 def load_image(filepath):
     image = Image.open(filepath)
     image = image.convert('RGB')
     image = image.resize((64,64))
-    image = np.expand_dims(np.asarray(image), axis=0)
+    image = np.expand_dims(np.asarray(image) / 255, axis=0)
     image = tf.convert_to_tensor(image)
     return image
 
@@ -123,11 +118,11 @@ while True:
             figure_canvas_agg.get_tk_widget().forget()
             plt.close('all')
         imageData = load_image(filename)
-        prediction_array = predict(WasteNet,imageData)[0] * 100
+        prediction_array = predict(WasteNet,imageData)
         plt.clf()
         plot_value_array(prediction_array)
         fig = plt.gcf()
-        fig.set_size_inches(5,3)
+        fig.set_size_inches(5,2)
         figure_canvas_agg = draw_figure(window["-CANVAS-"].TKCanvas, fig)
 
 window.close()
