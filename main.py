@@ -1,13 +1,14 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-import shutil
 import tensorflow as tf
-from tensorflow.keras import layers, models
 import matplotlib.pyplot as plt
 import numpy as np
+import math
+import time
 from PIL import Image
+from tensorflow.keras import layers, models, callbacks, optimizers
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 
 import process_data as pd
 
@@ -37,19 +38,35 @@ model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Flatten())
-model.add(layers.Dropout(0.8))
+model.add(layers.Dropout(0.9))
 model.add(layers.Dense(256, activation='relu'))
 model.add(layers.Dropout(0.5))
 model.add(layers.Dense(6, activation='softmax'))
 model.summary()
 
-model.compile(optimizer=tf.keras.optimizers.SGD( learning_rate=0.001, momentum=0.9), loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
+#set up step decay function to decay the learning rate
+def step_decay(epoch):
+	initial_lrate = 0.001
+	drop = 0.9
+	epochs_drop = 50.0
+	lrate = initial_lrate * math.pow(drop, math.floor((1+epoch)/epochs_drop))
+	print(lrate)
+	return lrate
+lrate = callbacks.LearningRateScheduler(step_decay)
+#set up early stoping
+es = callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=50)
+#add callbacks
+callbacks.CallbackList = []
 
-history = model.fit(train_images, train_labels, epochs=300, validation_data=(test_images, test_labels), verbose=1)
+model.compile(optimizer=optimizers.SGD( learning_rate=0.001, momentum=0.9), loss=tf.keras.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 
-if (os.path.exists('models/WasteNet')):
-	shutil.rmtree('models/WasteNet')
-model.save('models/WasteNet')
+start = time.time()
+history = model.fit(train_images, train_labels, epochs=800, validation_data=(test_images, test_labels), callbacks=callbacks.CallbackList, verbose=1)
+print("Training time : ", time.time() - start)
+
+if (os.path.exists('models/WasteNet.h5')):
+	os.remove('models/WasteNet.h5')
+model.save('models/WasteNet.h5')
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels)
 print(test_acc)
@@ -77,6 +94,17 @@ plt.ylabel('Loss')
 plt.legend(loc='upper right')
 plt.show()
 
+
+c_matrix = confusion_matrix(test_labels, y_pred, normalize='true')
+plt.matshow(c_matrix)
+for (i, j), z in np.ndenumerate(c_matrix):
+    plt.text(j, i, '{:0.2f}'.format(z), ha='center', va='center', c='white')
+plt.xticks(range(6),dataset.classes)
+plt.yticks(range(6),dataset.classes)
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.title('Confusion Matrix')
+plt.show()
 
 #------------------------------Prediction Visualisation from---------------------------------
 #https://www.tensorflow.org/tutorials/keras/classification
