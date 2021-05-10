@@ -1,29 +1,32 @@
+#import required libraries
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import PySimpleGUI as sg
 import matplotlib.pyplot as plt
-import matplotlib
 from tensorflow.keras import models
 import tensorflow as tf
 from PIL import Image
 
+#load WasteNet model
 print("loading model...")
 WasteNet = models.load_model("models/WasteNet.h5")
 
-
+#function for drawing predicions plot
 def draw_figure(canvas, figure):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side="top", fill="both", expand=1)
     return figure_canvas_agg
 
+#get predictions from model
 def predict(model, image):
     y_pred = model.predict(image)[0] * 100
     return y_pred
 
-def load_image(filepath):
+#load image and format for prediction
+def format_image(filepath):
     image = Image.open(filepath)
     image = image.convert('RGB')
     image = image.resize((64,64))
@@ -31,11 +34,13 @@ def load_image(filepath):
     image = tf.convert_to_tensor(image)
     return image
 
-def format_image(filepath):
+#load image and format for display
+def load_image(filepath):
     image = Image.open(filepath)
     image = image.resize((256,256))
     image.save("temp/temp.png")
 
+#create plot for predictions
 def plot_value_array(prediction_array):
     plt.grid(False)
     plt.xticks(range(6),["cardboard","glass","metal","paper","plastic","trash"])
@@ -46,12 +51,8 @@ def plot_value_array(prediction_array):
     predicted_label = np.argmax(prediction_array)
     thisplot[predicted_label].set_color('blue')
 
-#image = load_image("o_waste_images/glass/glass.jpg")
-#prediction_array = predict(WasteNet,image)[0] * 100
-#plot_value_array(prediction_array)
-#plt.show()
 
-# First the window layout in 2 columns
+#first column in window for selecting file
 file_list_column = [
     [
         sg.Text("Image Folder"),
@@ -65,7 +66,7 @@ file_list_column = [
     ],
 ]
 
-# For now will only show the name of the file that was chosen
+#coloumn for showing selected image and prediction plot
 image_viewer_column = [
     [sg.Text("Choose an image from list on left:")],
     [sg.Text(size=(40, 1), key="-TOUT-")],
@@ -74,7 +75,7 @@ image_viewer_column = [
     [sg.Canvas(key="-CANVAS-")],
 ]
 
-# ----- Full layout -----
+#set whole window layout
 layout = [
     [
         sg.Column(file_list_column),
@@ -83,14 +84,15 @@ layout = [
     ]
 ]
 
+#create window
 window = sg.Window("WasteNet Demo", layout, finalize=True, element_justification="center", font="Helvetica 14",)
 
+#main logic loop
 while True:
     event, values = window.read()
     if event == "Exit" or event == sg.WIN_CLOSED:
         break
-
-    # Folder name was filled in, make a list of files in the folder
+    #make list of file names from selected folder
     if event == "-FOLDER-":
         folder = values["-FOLDER-"]
         try:
@@ -99,24 +101,31 @@ while True:
         except:
             file_list = []
 
+        #set list of files ending with .png or .jpg
         fnames = [
             f
             for f in file_list
             if os.path.isfile(os.path.join(folder, f))
             and f.lower().endswith((".png", ".jpg"))
         ]
+        #update window
         window["-FILE LIST-"].update(fnames)
-    elif event == "-FILE LIST-":  # A file was chosen from the listbox
+    #when a file is selected from list
+    elif event == "-FILE LIST-":
+        #display name
         filename = os.path.join(
             values["-FOLDER-"], values["-FILE LIST-"][0]
         )
         window["-TOUT-"].update(filename)
-        format_image(filename)
+        #display image
+        load_image(filename)
         window["-IMAGE-"].update("temp/temp.png")
+        #reset canvas
         if "figure_canvas_agg" in locals():
             figure_canvas_agg.get_tk_widget().forget()
             plt.close('all')
-        imageData = load_image(filename)
+        #get prediction from image and display plot in canas
+        imageData = format_image(filename)
         prediction_array = predict(WasteNet,imageData)
         plt.clf()
         plot_value_array(prediction_array)
