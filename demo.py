@@ -13,7 +13,7 @@ from PIL import Image
 print("loading model...")
 WasteNet = models.load_model("models/WasteNet.h5")
 
-#function for drawing predicions plot
+#function for drawing predictions plot
 def draw_figure(canvas, figure):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
     figure_canvas_agg.draw()
@@ -66,7 +66,7 @@ file_list_column = [
     ],
 ]
 
-#coloumn for showing selected image and prediction plot
+#column for showing selected image and prediction plot
 image_viewer_column = [
     [sg.Text("Choose an image from list on left:")],
     [sg.Text(size=(40, 1), key="-TOUT-")],
@@ -85,7 +85,8 @@ layout = [
 ]
 
 #create window
-window = sg.Window("WasteNet Demo", layout, finalize=True, element_justification="center", font="Helvetica 14",)
+window = sg.Window("WasteNet Demo", layout, finalize=True, 
+    element_justification="center", font="Helvetica 14",)
 
 #main logic loop
 while True:
@@ -124,7 +125,7 @@ while True:
         if "figure_canvas_agg" in locals():
             figure_canvas_agg.get_tk_widget().forget()
             plt.close('all')
-        #get prediction from image and display plot in canas
+        #get prediction from image and display plot in canvas
         imageData = format_image(filename)
         prediction_array = predict(WasteNet,imageData)
         plt.clf()

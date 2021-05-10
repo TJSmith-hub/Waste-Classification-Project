@@ -17,7 +17,7 @@ import process_data as pd
 dataset = pd.dataset("original")
 #resize to 64x64 resolution
 dataset.resize_images([64,64])
-#add fliped permutations
+#add flipped permutations
 dataset.add_flipped_images2()
 
 #dataset.save_dataset()

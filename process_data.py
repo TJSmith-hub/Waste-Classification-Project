@@ -17,7 +17,7 @@ class dataset:
     new_images = []
     new_labels = []
 
-    #contructor
+    #constructor
     def __init__(self, mode):
         #load original images at full resolution and label
         if mode == "original":
@@ -63,7 +63,7 @@ class dataset:
             temp.save(os.path.join("waste_dataset/waste_dataset","image" + str(i) + ".jpg"))
             i += 1
     
-    #resize all images to spesified resolution
+    #resize all images to specified resolution
     def resize_images(self, res):
         for image in self.original_images:
             temp = Image.fromarray(image)
@@ -82,7 +82,7 @@ class dataset:
             self.new_images.append(np.asarray(temp))
             self.new_labels.append(self.new_labels[i])
 
-    #permorm rotation of all images 3 times and append to dataset
+    #perform rotation of all images 3 times and append to dataset
     def add_rotated_images(self):
         n = len(self.new_images)
         print("Rotating",n,"images")
