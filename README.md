@@ -1,2 +1,4 @@
 # Waste-Classification-Project
-A deep learning neural network for classifying images of waste into recyling materials.
+A deep learning neural network for classifying images of waste into recyling materials ~95% accuracy.
+
+![Alt text](images/demo.png?raw=true "Title")
