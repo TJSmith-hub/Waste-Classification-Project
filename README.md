@@ -1,5 +1,7 @@
 # Waste-Classification-Project
 
+This is a CNN model trained to classify images of waste into 6 categories. Model built using Tensorflow Keras and Sklearn. Demo built using PySimpleGUI and Matplotlib.
+
 Submission for University of Lincoln BSc Computer Science Dissertation 2021
 
 ## Abstract
@@ -17,6 +19,9 @@ Deep learning is a subfield of machine learning that has become more integrated 
 ## Confusion Matrix
 
 ![](media/cmatrix.png)
+
+## Demo
+![](media/demo.png)
 
 ## Install
 
