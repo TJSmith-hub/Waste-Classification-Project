@@ -1,0 +1,5 @@
+tensorflow==2.15
+PySimpleGUI
+pillow
+matplotlib
+scikit-learn
